@@ -1,0 +1,48 @@
+@startuml
+title Завдання 2 — Factory Method (види оренди)
+
+interface Trip <<Product>> {
+  +kind(): String
+  +cost(d: Duration): double
+}
+class MinuteTrip <<ConcreteProduct>> {
+  {static} -RATE: double
+}
+class HourlyTrip <<ConcreteProduct>> {
+  {static} -RATE: double
+}
+class DailyTrip <<ConcreteProduct>> {
+  {static} -RATE: double
+}
+class WeekendTrip <<ConcreteProduct>> {
+  {static} -RATE: double
+}
+Trip <|.. MinuteTrip
+Trip <|.. HourlyTrip
+Trip <|.. DailyTrip
+Trip <|.. WeekendTrip
+
+abstract class RentalProcess <<Creator>> {
+  {abstract} #createTrip(): Trip
+  +rent(car: String, client: String, d: Duration): double
+}
+class MinuteRental <<ConcreteCreator>>
+class HourlyRental <<ConcreteCreator>>
+class DailyRental <<ConcreteCreator>>
+class WeekendRental <<ConcreteCreator>>
+RentalProcess <|-- MinuteRental
+RentalProcess <|-- HourlyRental
+RentalProcess <|-- DailyRental
+RentalProcess <|-- WeekendRental
+
+RentalProcess ..> Trip : uses
+MinuteRental ..> MinuteTrip : creates
+HourlyRental ..> HourlyTrip : creates
+DailyRental ..> DailyTrip : creates
+WeekendRental ..> WeekendTrip : creates
+
+note right of RentalProcess
+  rent() — final: процес оренди
+  описано один раз
+end note
+@enduml
