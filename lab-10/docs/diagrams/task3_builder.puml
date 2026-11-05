@@ -1,0 +1,41 @@
+@startuml
+title Завдання 3 — Builder (бронювання авто)
+
+class Booking <<Product>> {
+  -client: String
+  -car: String
+  -startTime: LocalDateTime
+  -childSeat: boolean
+  -extraInsurance: boolean
+  -deliveryAddress: String
+  -comment: String
+  ~Booking(...)
+  +toString(): String
+}
+
+class BookingBuilder <<Builder>> {
+  -clock: Clock
+  +client(String): BookingBuilder
+  +car(String): BookingBuilder
+  +startTime(LocalDateTime): BookingBuilder
+  +withChildSeat(): BookingBuilder
+  +withExtraInsurance(): BookingBuilder
+  +deliveredTo(String): BookingBuilder
+  +comment(String): BookingBuilder
+  +build(): Booking
+  -fail(reason: String): void
+}
+
+class BookingDirector <<Director>> {
+  +airport(b, client, car, start): Booking
+  +tripWithChild(b, client, car, start): Booking
+}
+
+class BookingException {
+  +BookingException(msg: String)
+}
+
+BookingBuilder ..> Booking : creates
+BookingBuilder ..> BookingException : throws
+BookingDirector --> "1" BookingBuilder : керує кроками
+@enduml
