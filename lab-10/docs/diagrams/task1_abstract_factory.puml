@@ -1,0 +1,46 @@
+@startuml
+title Завдання 1 — Abstract Factory (набори елементів для авто)
+
+interface KitElement {
+  +carType(): String
+  +describe(): String
+}
+interface TelematicsModule <<AbstractProductA>>
+interface EnergyCard <<AbstractProductB>>
+interface LevelSensor <<AbstractProductC>>
+KitElement <|-- TelematicsModule
+KitElement <|-- EnergyCard
+KitElement <|-- LevelSensor
+
+interface VehicleKitFactory <<AbstractFactory>> {
+  +carType(): String
+  +createTelematics(): TelematicsModule
+  +createEnergyCard(): EnergyCard
+  +createLevelSensor(): LevelSensor
+}
+class PetrolKitFactory <<ConcreteFactory>>
+class HybridKitFactory <<ConcreteFactory>>
+class ElectricKitFactory <<ConcreteFactory>>
+class GasKitFactory <<ConcreteFactory>>
+VehicleKitFactory <|.. PetrolKitFactory
+VehicleKitFactory <|.. HybridKitFactory
+VehicleKitFactory <|.. ElectricKitFactory
+VehicleKitFactory <|.. GasKitFactory
+
+class FleetService <<Client>> {
+  +commission(carPlate: String, f: VehicleKitFactory): void
+}
+FleetService ..> VehicleKitFactory : uses
+FleetService ..> TelematicsModule
+FleetService ..> EnergyCard
+FleetService ..> LevelSensor
+
+PetrolKitFactory ..> TelematicsModule : creates
+PetrolKitFactory ..> EnergyCard : creates
+PetrolKitFactory ..> LevelSensor : creates
+
+note bottom of PetrolKitFactory
+  Hybrid, Electric і Gas фабрики
+  створюють свої продукти аналогічно
+end note
+@enduml
