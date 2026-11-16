@@ -1,0 +1,58 @@
+classDiagram
+    direction LR
+    class Report {
+        <<abstract, Abstraction>>
+        #ReportChannel channel
+        #Report(channel)
+        +setChannel(channel)
+        #getRecipient() String
+        #getTitle() String
+        #buildBody() String
+        +send()
+    }
+    class TripReport {
+        <<RefinedAbstraction>>
+        -String client
+        -int tripId
+        -int km
+        -int minutes
+        -double cost
+    }
+    class UsageReport {
+        <<RefinedAbstraction>>
+        -String plate
+        -int mileage
+        -int batteryPercent
+    }
+    class CorporateReport {
+        <<RefinedAbstraction>>
+        -String company
+        -String month
+        -int trips
+        -double total
+    }
+    class ReportChannel {
+        <<interface, Implementor>>
+        +getName() String
+        +deliver(recipient, title, body)
+    }
+    class AppChannel {
+        <<ConcreteImplementor>>
+    }
+    class EmailChannel {
+        <<ConcreteImplementor>>
+    }
+    class AccountingChannel {
+        <<ConcreteImplementor>>
+    }
+    class TelegramBotChannel {
+        <<ConcreteImplementor, новий>>
+    }
+    Report "1" o-- "1" ReportChannel : міст (channel)
+    Report <|-- TripReport
+    Report <|-- UsageReport
+    Report <|-- CorporateReport
+    ReportChannel <|.. AppChannel
+    ReportChannel <|.. EmailChannel
+    ReportChannel <|.. AccountingChannel
+    ReportChannel <|.. TelegramBotChannel
