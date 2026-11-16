@@ -1,0 +1,36 @@
+classDiagram
+    direction TB
+    class ZoneComponent {
+        <<interface, Component>>
+        +getName() String
+        +getCarCount() int
+        +getRevenue() double
+        +print(indent String)
+    }
+    class ParkingLot {
+        <<Leaf>>
+        -String name
+        -int carCount
+        -double revenue
+        +getCarCount() int
+        +getRevenue() double
+        +print(indent String)
+    }
+    class Zone {
+        <<Composite>>
+        -String kind
+        -String name
+        -List~ZoneComponent~ children
+        +add(child ZoneComponent) Zone
+        +getCarCount() int
+        +getRevenue() double
+        +print(indent String)
+    }
+    class Main {
+        <<Client>>
+        +task2Composite()$
+    }
+    ZoneComponent <|.. ParkingLot
+    ZoneComponent <|.. Zone
+    Zone "1" o-- "0..*" ZoneComponent : children
+    Main ..> ZoneComponent
