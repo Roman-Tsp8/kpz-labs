@@ -1,0 +1,65 @@
+@startuml task2_facade
+title Завдання 2. Facade: початок поїздки
+skinparam classAttributeIconSize 0
+
+class TripFacade <<Facade>> {
+  - {static} DEPOSIT_UAH: double
+  - license: DriverLicenseService
+  - payment: PaymentService
+  - reservation: CarReservationService
+  - doorLock: DoorLockService
+  - telematics: TelematicsService
+  - insurance: InsuranceService
+  + startTrip(driverId: String, carId: String): boolean
+}
+
+class MobileApp <<Client>> {
+  - facade: TripFacade
+  + pressStart(driverId: String, carId: String): void
+}
+
+class Dispatcher <<Client>> {
+  - facade: TripFacade
+  + startTripForClient(driverId: String, carId: String): void
+}
+
+class SupportCenter <<Client>> {
+  - doorLock: DoorLockService
+  + remoteUnlock(carId: String): void
+}
+
+class DriverLicenseService <<Subsystem>> {
+  + verify(driverId: String): boolean
+}
+class PaymentService <<Subsystem>> {
+  + holdFunds(driverId: String, amountUah: double): boolean
+}
+class CarReservationService <<Subsystem>> {
+  + reserve(carId: String, driverId: String): void
+}
+class DoorLockService <<Subsystem>> {
+  + unlock(carId: String): void
+}
+class TelematicsService <<Subsystem>> {
+  + enable(carId: String): void
+}
+class InsuranceService <<Subsystem>> {
+  + insureTrip(driverId: String, carId: String): void
+}
+
+MobileApp "*" --> "1" TripFacade
+Dispatcher "*" --> "1" TripFacade
+TripFacade "1" o-- "1" DriverLicenseService
+TripFacade "1" o-- "1" PaymentService
+TripFacade "1" o-- "1" CarReservationService
+TripFacade "1" o-- "1" DoorLockService
+TripFacade "1" o-- "1" TelematicsService
+TripFacade "1" o-- "1" InsuranceService
+SupportCenter "*" --> "1" DoorLockService : окреме використання
+
+note right of TripFacade
+  Порядок: ліцензія → кошти → резерв →
+  двері → телематика → страхування.
+  Описаний лише тут.
+end note
+@enduml

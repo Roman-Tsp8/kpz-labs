@@ -1,0 +1,53 @@
+@startuml task3_proxy
+title Завдання 3. Proxy: керування авто через віддалений сервер
+skinparam classAttributeIconSize 0
+
+interface CarCommands <<Subject>> {
+  + openDoors(clientId: String): void
+  + startEngine(clientId: String): void
+  + honk(clientId: String): void
+}
+
+class RemoteCarController <<RealSubject>> {
+  - carId: String
+  - serverCalls: int
+  + getServerCalls(): int
+  + openDoors(clientId: String): void
+  + startEngine(clientId: String): void
+  + honk(clientId: String): void
+  - send(command: String, clientId: String): void
+}
+
+class CarAccessProxy <<Protection Proxy>> {
+  - carId: String
+  - real: CarCommands
+  - registry: RentalRegistry
+  - auditLog: List<String>
+  + getAuditLog(): List<String>
+  + openDoors(clientId: String): void
+  + startEngine(clientId: String): void
+  + honk(clientId: String): void
+  - allow(command: String, clientId: String): boolean
+}
+
+class RentalRegistry {
+  - renters: Map<String, String>
+  + rent(carId: String, clientId: String): void
+  + renterOf(carId: String): Optional<String>
+}
+
+class "Застосунок (Client)" as App <<Client>>
+
+App "*" --> "1" CarCommands
+CarAccessProxy ..|> CarCommands
+RemoteCarController ..|> CarCommands
+CarAccessProxy "1" o-- "1" CarCommands : real
+CarAccessProxy "*" --> "1" RentalRegistry
+
+note right of CarAccessProxy
+  Не орендар → відмова
+  «Ви не є орендарем цього авто»,
+  сервер не викликається.
+  Кожна команда — у журнал із клієнтом.
+end note
+@enduml
