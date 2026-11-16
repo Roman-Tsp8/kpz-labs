@@ -1,0 +1,38 @@
+classDiagram
+    direction LR
+    class CarModel {
+        <<Flyweight>>
+        -String name
+        -String iconPath
+        -int seats
+        -int rangeKm
+        -String photoPath
+        ~CarModel(name, iconPath, seats, rangeKm, photoPath)
+        +getName() String
+        +describe() String
+    }
+    class CarModelFactory {
+        <<FlyweightFactory>>
+        -Map~String,CarModel~ CACHE$
+        +getModel(name, seats, rangeKm) CarModel$
+        +getCreatedCount() int$
+    }
+    class RouteMarker {
+        <<Context>>
+        -CarModel model
+        -String plate
+        -double lat
+        -double lon
+        -String time
+        +getModel() CarModel
+        +describe() String
+    }
+    class Main {
+        <<Client>>
+        +task1Flyweight()$
+    }
+    CarModelFactory o-- "0..4" CarModel : кеш
+    RouteMarker "100000" --> "1" CarModel : спільна модель
+    CarModelFactory ..> CarModel : створює
+    Main ..> CarModelFactory
+    Main ..> RouteMarker
