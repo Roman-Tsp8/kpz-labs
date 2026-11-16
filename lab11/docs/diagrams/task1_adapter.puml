@@ -1,0 +1,71 @@
+@startuml task1_adapter
+title Завдання 1. Adapter: підключення телематики нового постачальника
+skinparam classAttributeIconSize 0
+
+interface TelematicsUnit <<Target>> {
+  + carId(): String
+  + read(): TelematicsData
+}
+
+class FleetMap <<Client>> {
+  - units: List<TelematicsUnit>
+  + addUnit(unit: TelematicsUnit): void
+  + render(): void
+}
+
+class VendorXAdapter <<Adapter>> {
+  - carId: String
+  - block: VendorXTelematicsBlock
+  + carId(): String
+  + read(): TelematicsData
+  - {static} toDecimal(d: Dms): double
+}
+
+class VendorXTelematicsBlock <<Adaptee>> {
+  - serial: String
+  - lat: Dms
+  - lon: Dms
+  - fuelLiters: double
+  - tankLiters: double
+  + getSerial(): String
+  + fetchLatitudeDms(): Dms
+  + fetchLongitudeDms(): Dms
+  + fetchFuelLiters(): double
+  + fetchTankCapacityLiters(): double
+}
+
+class NativeTelematicsUnit <<Target implementation>> {
+  - data: TelematicsData
+  + carId(): String
+  + read(): TelematicsData
+}
+
+class TelematicsData <<record>> {
+  + carId: String
+  + latitude: double
+  + longitude: double
+  + fuelPercent: int
+}
+
+class Dms <<record>> {
+  + degrees: int
+  + minutes: int
+  + seconds: double
+  + hemisphere: char
+}
+
+FleetMap "1" o-- "0..*" TelematicsUnit : units
+VendorXAdapter ..|> TelematicsUnit
+NativeTelematicsUnit ..|> TelematicsUnit
+VendorXAdapter *-- "1" VendorXTelematicsBlock : block
+VendorXTelematicsBlock ..> Dms
+TelematicsUnit ..> TelematicsData
+VendorXAdapter ..> TelematicsData
+VendorXAdapter ..> Dms
+
+note right of VendorXAdapter
+  Єдине місце конвертації:
+  ГМС → десяткові градуси,
+  літри → відсотки
+end note
+@enduml

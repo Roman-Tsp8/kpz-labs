@@ -1,0 +1,63 @@
+@startuml task4_decorator
+title Завдання 4. Decorator: додаткові опції поїздки
+skinparam classAttributeIconSize 0
+
+interface Trip <<Component>> {
+  + description(): String
+  + minutes(): int
+  + ratePerMinute(): double
+  + cost(): double
+}
+
+class StandardTrip <<ConcreteComponent>> {
+  - minutes: int
+  - baseRate: double
+  + description(): String
+  + minutes(): int
+  + ratePerMinute(): double
+}
+
+abstract class TripOption <<Decorator>> {
+  # inner: Trip
+  # {abstract} optionName(): String
+  # {abstract} surcharge(): double
+  + description(): String
+  + minutes(): int
+  + ratePerMinute(): double
+}
+
+class FullInsurance <<ConcreteDecorator>> {
+  # optionName(): String
+  # surcharge(): double
+}
+class ChildSeat <<ConcreteDecorator>> {
+  # optionName(): String
+  # surcharge(): double
+}
+class SecondDriver <<ConcreteDecorator>> {
+  # optionName(): String
+  # surcharge(): double
+}
+class OutOfCity <<ConcreteDecorator>> {
+  # optionName(): String
+  # surcharge(): double
+}
+class RoofRack <<ConcreteDecorator>> {
+  # optionName(): String
+  # surcharge(): double
+}
+
+StandardTrip ..|> Trip
+TripOption ..|> Trip
+TripOption "1" o-- "1" Trip : inner
+FullInsurance --|> TripOption
+ChildSeat --|> TripOption
+SecondDriver --|> TripOption
+OutOfCity --|> TripOption
+RoofRack --|> TripOption
+
+note bottom of TripOption
+  Нова опція = новий підклас,
+  існуючі класи не змінюються.
+end note
+@enduml
