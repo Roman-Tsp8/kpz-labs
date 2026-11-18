@@ -1,0 +1,109 @@
+@startuml task2_chain
+title Завдання 2. Допуск клієнта до поїздки — шаблон Chain of Responsibility
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+abstract class CheckHandler <<Handler>> {
+  - next : CheckHandler
+  + setNext(next : CheckHandler) : CheckHandler
+  + {final} handle(r : TripRequest) : CheckResult
+  # {abstract} check(r : TripRequest) : String
+  + {abstract} name() : String
+}
+
+class LicenseCheck <<ConcreteHandler>> {
+  # check(r : TripRequest) : String
+  + name() : String
+}
+class ExperienceCheck <<ConcreteHandler>> {
+  - requiredYears : int
+  + ExperienceCheck(requiredYears : int)
+  # check(r : TripRequest) : String
+}
+class DebtCheck <<ConcreteHandler>> {
+  # check(r : TripRequest) : String
+}
+class BalanceCheck <<ConcreteHandler>> {
+  # check(r : TripRequest) : String
+}
+class BlockCheck <<ConcreteHandler>> {
+  # check(r : TripRequest) : String
+}
+class AgeCheck <<ConcreteHandler>> {
+  - minAge : int
+  + AgeCheck(minAge : int)
+  # check(r : TripRequest) : String
+}
+
+class TripRequest <<Request>> {
+  - client : Client
+  - vehicle : Vehicle
+  + getClient() : Client
+  + getVehicle() : Vehicle
+}
+
+class Client {
+  - name : String
+  - licenseConfirmed : boolean
+  - drivingYears : int
+  - age : int
+  - debt : double
+  - cardBalance : double
+  - blocked : boolean
+}
+
+class Vehicle {
+  - model : String
+  - premium : boolean
+  - sports : boolean
+  - minDeposit : double
+}
+
+class CheckResult <<Result>> {
+  - approved : boolean
+  - reason : String
+  - decidedBy : String
+  + {static} approved(by : String) : CheckResult
+  + {static} rejected(reason : String, by : String) : CheckResult
+}
+
+class CheckChainFactory <<Chain builder>> {
+  + {static} build(handlers : List<CheckHandler>) : CheckHandler
+  + {static} standard() : CheckHandler
+  + {static} premium() : CheckHandler
+}
+
+class Main <<Client (runner)>> {
+  ~ {static} runTripAdmission() : void
+}
+
+class EventLog <<Logger>> {
+  + {static} log(source : String, event : String) : void
+}
+
+CheckHandler <|-- LicenseCheck
+CheckHandler <|-- ExperienceCheck
+CheckHandler <|-- DebtCheck
+CheckHandler <|-- BalanceCheck
+CheckHandler <|-- BlockCheck
+CheckHandler <|-- AgeCheck
+
+CheckHandler "1" o-- "0..1" CheckHandler : next
+TripRequest *-- "1" Client
+TripRequest o-- "1" Vehicle
+CheckHandler ..> TripRequest : handles
+CheckHandler ..> CheckResult : returns
+CheckHandler ..> EventLog
+CheckChainFactory ..> CheckHandler : links
+CheckChainFactory ..> LicenseCheck : creates
+CheckChainFactory ..> ExperienceCheck : creates
+Main ..> CheckChainFactory
+Main ..> TripRequest : creates
+Main ..> AgeCheck : adds at runtime
+
+note bottom of CheckHandler
+  handle(): лог «отримано» → check().
+  Якщо причина відмови != null → стоп.
+  Інакше → next.handle(r) (або допуск, якщо next == null).
+end note
+@enduml

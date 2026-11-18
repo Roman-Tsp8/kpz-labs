@@ -1,0 +1,98 @@
+classDiagram
+direction TB
+class CheckHandler {
+  <<abstract>>
+  <<Handler>>
+  -CheckHandler next
+  +setNext(CheckHandler) CheckHandler
+  +handle(TripRequest) CheckResult
+  #check(TripRequest)* String
+  +name()* String
+}
+class LicenseCheck {
+  <<ConcreteHandler>>
+  #check(TripRequest) String
+  +name() String
+}
+class ExperienceCheck {
+  <<ConcreteHandler>>
+  -int requiredYears
+  #check(TripRequest) String
+}
+class DebtCheck {
+  <<ConcreteHandler>>
+  #check(TripRequest) String
+}
+class BalanceCheck {
+  <<ConcreteHandler>>
+  #check(TripRequest) String
+}
+class BlockCheck {
+  <<ConcreteHandler>>
+  #check(TripRequest) String
+}
+class AgeCheck {
+  <<ConcreteHandler>>
+  -int minAge
+  #check(TripRequest) String
+}
+class TripRequest {
+  <<Request>>
+  -Client client
+  -Vehicle vehicle
+  +getClient() Client
+  +getVehicle() Vehicle
+}
+class Client {
+  -String name
+  -boolean licenseConfirmed
+  -int drivingYears
+  -int age
+  -double debt
+  -double cardBalance
+  -boolean blocked
+}
+class Vehicle {
+  -String model
+  -boolean premium
+  -boolean sports
+  -double minDeposit
+}
+class CheckResult {
+  <<Result>>
+  -boolean approved
+  -String reason
+  -String decidedBy
+  +approved(String)$ CheckResult
+  +rejected(String, String)$ CheckResult
+}
+class CheckChainFactory {
+  <<Chain builder>>
+  +build(List~CheckHandler~)$ CheckHandler
+  +standard()$ CheckHandler
+  +premium()$ CheckHandler
+}
+class Main {
+  <<Client runner>>
+  ~runTripAdmission()$ void
+}
+class EventLog {
+  <<Logger>>
+  +log(String, String)$ void
+}
+CheckHandler <|-- LicenseCheck
+CheckHandler <|-- ExperienceCheck
+CheckHandler <|-- DebtCheck
+CheckHandler <|-- BalanceCheck
+CheckHandler <|-- BlockCheck
+CheckHandler <|-- AgeCheck
+CheckHandler "1" o-- "0..1" CheckHandler : next
+TripRequest *-- "1" Client
+TripRequest o-- "1" Vehicle
+CheckHandler ..> TripRequest : handles
+CheckHandler ..> CheckResult : returns
+CheckHandler ..> EventLog
+CheckChainFactory ..> CheckHandler : links
+Main ..> CheckChainFactory
+Main ..> TripRequest : creates
+Main ..> AgeCheck : adds at runtime
