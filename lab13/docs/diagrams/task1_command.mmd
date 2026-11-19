@@ -1,0 +1,88 @@
+classDiagram
+direction LR
+class RemoteCommand {
+  <<interface>> 
+  <<Command>>
+  +execute() void
+  +undo() void
+  +description() String
+}
+class CarCommand {
+  <<abstract>>
+  <<Command base>>
+  #Car car
+  -String sender
+  +getCar() Car
+  +description() String
+  #name()* String
+}
+class OpenDoorsCommand {
+  <<ConcreteCommand>>
+  -boolean previous
+  +execute() void
+  +undo() void
+}
+class CloseDoorsCommand {
+  <<ConcreteCommand>>
+  -boolean previous
+  +execute() void
+  +undo() void
+}
+class AlarmCommand {
+  <<ConcreteCommand>>
+  -boolean previous
+  +execute() void
+  +undo() void
+}
+class BlockEngineCommand {
+  <<ConcreteCommand>>
+  -boolean previous
+  +execute() void
+  +undo() void
+}
+class Car {
+  <<Receiver>>
+  -String plate
+  -boolean online
+  -boolean doorsLocked
+  -boolean alarmOn
+  -boolean engineBlocked
+  +setOnline(boolean) void
+  +setDoorsLocked(boolean) void
+  +setAlarmOn(boolean) void
+  +setEngineBlocked(boolean) void
+}
+class CommandCenter {
+  <<Invoker>>
+  -Queue~CarCommand~ pending
+  -Deque~CarCommand~ history
+  -List~String~ auditLog
+  +send(CarCommand) void
+  +onCarReconnected(Car) void
+  +undoLast() void
+  +printAuditLog() void
+  -run(CarCommand) void
+}
+class Main {
+  <<Client>>
+  +main(String[])$ void
+  ~runRemoteCommands()$ void
+}
+class EventLog {
+  <<Logger>>
+  +log(String, String)$ void
+}
+RemoteCommand <|.. CarCommand
+CarCommand <|-- OpenDoorsCommand
+CarCommand <|-- CloseDoorsCommand
+CarCommand <|-- AlarmCommand
+CarCommand <|-- BlockEngineCommand
+CarCommand "*" --> "1" Car : receiver
+CommandCenter o-- "0..*" CarCommand : pending
+CommandCenter o-- "0..*" CarCommand : history
+Main ..> CommandCenter
+Main ..> Car
+Main ..> OpenDoorsCommand : creates
+Main ..> BlockEngineCommand : creates
+CommandCenter ..> EventLog
+Car ..> EventLog

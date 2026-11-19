@@ -1,0 +1,99 @@
+@startuml task1_command
+title Завдання 1. Віддалені команди авто — шаблон Command
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+interface RemoteCommand <<Command>> {
+  + execute() : void
+  + undo() : void
+  + description() : String
+}
+
+abstract class CarCommand <<Command (base)>> {
+  # car : Car
+  - sender : String
+  # CarCommand(car : Car, sender : String)
+  + getCar() : Car
+  + description() : String
+  # {abstract} name() : String
+}
+
+class OpenDoorsCommand <<ConcreteCommand>> {
+  - previous : boolean
+  + execute() : void
+  + undo() : void
+}
+class CloseDoorsCommand <<ConcreteCommand>> {
+  - previous : boolean
+  + execute() : void
+  + undo() : void
+}
+class AlarmCommand <<ConcreteCommand>> {
+  - previous : boolean
+  + execute() : void
+  + undo() : void
+}
+class BlockEngineCommand <<ConcreteCommand>> {
+  - previous : boolean
+  + execute() : void
+  + undo() : void
+}
+
+class Car <<Receiver>> {
+  - plate : String
+  - online : boolean
+  - doorsLocked : boolean
+  - alarmOn : boolean
+  - engineBlocked : boolean
+  + setOnline(v : boolean) : void
+  + setDoorsLocked(v : boolean) : void
+  + setAlarmOn(v : boolean) : void
+  + setEngineBlocked(v : boolean) : void
+  + isOnline() : boolean
+}
+
+class CommandCenter <<Invoker>> {
+  - {static} SRC : String
+  - pending : Queue<CarCommand>
+  - history : Deque<CarCommand>
+  - auditLog : List<String>
+  + send(c : CarCommand) : void
+  + onCarReconnected(car : Car) : void
+  + undoLast() : void
+  + printAuditLog() : void
+  - run(c : CarCommand) : void
+}
+
+class Main <<Client>> {
+  + {static} main(args : String[]) : void
+  ~ {static} runRemoteCommands() : void
+}
+
+class EventLog <<Logger>> {
+  + {static} log(source : String, event : String) : void
+}
+
+RemoteCommand <|.. CarCommand
+CarCommand <|-- OpenDoorsCommand
+CarCommand <|-- CloseDoorsCommand
+CarCommand <|-- AlarmCommand
+CarCommand <|-- BlockEngineCommand
+
+CarCommand "*" --> "1" Car : receiver
+CommandCenter o-- "0..*" CarCommand : pending (черга)
+CommandCenter o-- "0..*" CarCommand : history (стек для undo)
+Main ..> CommandCenter : creates / uses
+Main ..> Car
+Main ..> OpenDoorsCommand : creates
+Main ..> BlockEngineCommand : creates
+CommandCenter ..> EventLog
+Car ..> EventLog
+
+note right of CommandCenter
+  Авто поза зв'язком → команда
+  в черзі pending; при
+  onCarReconnected виконується.
+  Виконані команди — у history,
+  звідки undoLast() бере останню.
+end note
+@enduml
