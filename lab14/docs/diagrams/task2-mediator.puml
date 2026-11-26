@@ -1,0 +1,98 @@
+@startuml task2-mediator
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+title Завдання 2 — Mediator: диспетчерська служба «Міськавто»
+
+enum DispatchEvent {
+  ACCIDENT_REPORTED
+  REPAIR_COMPLETED
+  EVACUATION_COMPLETED
+  WASH_COMPLETED
+}
+
+interface DispatchMediator <<Mediator>> {
+  + onServiceEvent(sender: DispatchService, event: DispatchEvent, carId: String): void
+}
+
+abstract class DispatchService <<Colleague>> {
+  # mediator: DispatchMediator
+  - name: String
+  + getName(): String
+  # log(event: String): void
+}
+
+class DispatchCenter <<ConcreteMediator>> {
+  - {static} NAME: String
+  - clientApp: ClientApp
+  - fleetMap: FleetMap
+  - towService: TowService
+  - maintenanceService: MaintenanceService
+  - supportService: SupportService
+  - carWashService: CarWashService
+  + registerClientApp(s: ClientApp): void
+  + registerFleetMap(s: FleetMap): void
+  + registerTowService(s: TowService): void
+  + registerMaintenanceService(s: MaintenanceService): void
+  + registerSupportService(s: SupportService): void
+  + registerCarWashService(s: CarWashService): void
+  + onServiceEvent(sender: DispatchService, event: DispatchEvent, carId: String): void
+  - handleAccident(carId: String): void
+  - handleRepairCompleted(carId: String): void
+  - handleEvacuationCompleted(carId: String): void
+  - handleWashCompleted(carId: String): void
+  - order(target: DispatchService, task: String): void
+}
+
+class ClientApp <<ConcreteColleague>> {
+  + reportAccident(carId: String): void
+  + finishTrip(carId: String): void
+}
+
+class FleetMap <<ConcreteColleague>> {
+  - carsOnMap: Set<String>
+  + removeCar(carId: String): void
+  + returnCar(carId: String): void
+}
+
+class TowService <<ConcreteColleague>> {
+  + dispatchTow(carId: String): void
+  + completeEvacuation(carId: String): void
+}
+
+class MaintenanceService <<ConcreteColleague>> {
+  + completeRepair(carId: String): void
+  + acceptCar(carId: String): void
+}
+
+class SupportService <<ConcreteColleague>> {
+  + openCase(carId: String, reason: String): void
+}
+
+class CarWashService <<ConcreteColleague, нова служба>> {
+  + washCar(carId: String): void
+}
+
+DispatchCenter ..|> DispatchMediator
+DispatchService --> "1" DispatchMediator : mediator
+DispatchMediator ..> DispatchEvent : <<use>>
+
+ClientApp --|> DispatchService
+FleetMap --|> DispatchService
+TowService --|> DispatchService
+MaintenanceService --|> DispatchService
+SupportService --|> DispatchService
+CarWashService --|> DispatchService
+
+DispatchCenter --> "1" ClientApp
+DispatchCenter --> "1" FleetMap
+DispatchCenter --> "1" TowService
+DispatchCenter --> "1" MaintenanceService
+DispatchCenter --> "1" SupportService
+DispatchCenter --> "0..1" CarWashService
+
+note right of DispatchCenter
+  Усі правила взаємодії тут.
+  Служби одна про одну не знають.
+end note
+@enduml
