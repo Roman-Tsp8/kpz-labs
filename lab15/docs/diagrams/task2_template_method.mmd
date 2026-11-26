@@ -1,0 +1,28 @@
+classDiagram
+    class CarInspection {
+        <<abstract>>
+        #String plate
+        #int energyLevel
+        +inspect() void
+        #exteriorInspection() void
+        #interiorCheck() void
+        #returnToAvailable() void
+        #typeName() String
+        #checkEnergy() boolean
+        #technicalCheck() void
+        #wash() void
+        #handleLowEnergy() void
+        #log(String) void
+    }
+    class PetrolCarInspection
+    class HybridCarInspection {
+        -int batteryLevel
+    }
+    class ElectricCarInspection
+    class GasCarInspection
+    CarInspection <|-- PetrolCarInspection
+    CarInspection <|-- HybridCarInspection
+    CarInspection <|-- ElectricCarInspection
+    CarInspection <|-- GasCarInspection
+    note for CarInspection "AbstractClass: inspect() це template method"
+    note for GasCarInspection "ConcreteClass (додано в демо)"
