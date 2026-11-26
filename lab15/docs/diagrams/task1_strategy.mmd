@@ -1,0 +1,30 @@
+classDiagram
+    class Trip {
+        -double PEAK_COEFFICIENT$
+        -String customer
+        -int minutes
+        -double km
+        -boolean peakHour
+        -TariffStrategy tariff
+        +setTariff(TariffStrategy) void
+        +calculateCost() double
+    }
+    class TariffStrategy {
+        <<interface>>
+        +getName() String
+        +calculate(int, double) double
+    }
+    class PerMinuteTariff
+    class PerKmTariff
+    class CombinedTariff
+    class CorporateFixedTariff
+    class NightTariff
+    Trip "1" o-- "1" TariffStrategy : tariff
+    TariffStrategy <|.. PerMinuteTariff
+    TariffStrategy <|.. PerKmTariff
+    TariffStrategy <|.. CombinedTariff
+    TariffStrategy <|.. CorporateFixedTariff
+    TariffStrategy <|.. NightTariff
+    note for Trip "Context"
+    note for TariffStrategy "Strategy"
+    note for NightTariff "ConcreteStrategy (додано в демо)"
