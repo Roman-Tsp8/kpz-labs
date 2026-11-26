@@ -1,0 +1,43 @@
+classDiagram
+    class Car {
+        -String plate
+        -CarState state
+        -String customer
+        +book(String) void
+        +unlock(String) void
+        +pause() void
+        +endTrip() void
+        +sendToMaintenance() void
+        +finishMaintenance() void
+        +advanceTime(int) void
+        ~setState(CarState) void
+    }
+    class CarState {
+        <<abstract>>
+        +getName() String
+        +book(Car, String) void
+        +unlock(Car, String) void
+        +pause(Car) void
+        +endTrip(Car) void
+        +sendToMaintenance(Car) void
+        +finishMaintenance(Car) void
+        +onTimeElapsed(Car) void
+        #refuse(Car, String) void
+    }
+    class AvailableState
+    class ReservedState {
+        -int BOOKING_TIMEOUT_MIN$
+        -int bookedAt
+    }
+    class InTripState
+    class PausedState
+    class MaintenanceState
+    Car "1" o-- "1" CarState : state
+    CarState <|-- AvailableState
+    CarState <|-- ReservedState
+    CarState <|-- InTripState
+    CarState <|-- PausedState
+    CarState <|-- MaintenanceState
+    CarState ..> Car : змінює стан
+    note for Car "Context"
+    note for CarState "State"
