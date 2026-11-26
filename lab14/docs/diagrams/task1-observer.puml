@@ -1,0 +1,84 @@
+@startuml task1-observer
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+title Завдання 1 — Observer: події авто «Міськавто»
+
+enum CarEventType {
+  LOW_BATTERY
+  CRASH
+  OUT_OF_ZONE
+  TRIP_FINISHED
+}
+
+class CarEvent <<record, повідомлення>> {
+  + type(): CarEventType
+  + carId(): String
+  + details(): String
+}
+
+interface CarEventListener <<Observer>> {
+  + getName(): String
+  + onCarEvent(event: CarEvent): void
+}
+
+class Car <<Subject>> {
+  - id: String
+  - listeners: List<CarEventListener>
+  + subscribe(listener: CarEventListener): void
+  + unsubscribe(listener: CarEventListener): void
+  + reportLowBattery(percent: int): void
+  + reportCrash(): void
+  + reportOutOfZone(): void
+  + finishTrip(): void
+  - publish(event: CarEvent): void
+}
+
+class Client <<ConcreteObserver>> {
+  - name: String
+  + startTrip(car: Car): void
+  + endTrip(car: Car): void
+  + getName(): String
+  + onCarEvent(event: CarEvent): void
+}
+
+class FleetService <<ConcreteObserver>> {
+  + getName(): String
+  + onCarEvent(event: CarEvent): void
+}
+
+class Dispatcher <<ConcreteObserver>> {
+  + getName(): String
+  + onCarEvent(event: CarEvent): void
+}
+
+class InsuranceCompany <<ConcreteObserver>> {
+  + getName(): String
+  + onCarEvent(event: CarEvent): void
+}
+
+class EventLog <<utility>> {
+  - {static} clock: LocalTime
+  + {static} log(source: String, event: String): void
+  + {static} header(title: String): void
+  + {static} reset(): void
+}
+
+Car o--> "0..*" CarEventListener : listeners
+Car ..> CarEvent : <<create>>
+CarEvent --> "1" CarEventType : type
+CarEventListener ..> CarEvent : <<use>>
+
+Client ..|> CarEventListener
+FleetService ..|> CarEventListener
+Dispatcher ..|> CarEventListener
+InsuranceCompany ..|> CarEventListener
+
+Client ..> Car : subscribe / unsubscribe
+
+note bottom of EventLog
+  Журнал [час] [джерело] подія.
+  Використовується всіма класами;
+  стрілки залежності опущено для читабельності.
+end note
+@enduml
